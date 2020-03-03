@@ -7,19 +7,23 @@ from .OnyxLogic import Board
 import numpy as np
 
 class OnyxGame(Game):
-    def __init__(self):
+    def __init__(self, height=None, np_pieces=None):
+        Game.__init__(self)
+        self._base_board = Board(height, np_pieces)
 
     def getInitBoard(self):
-        return super().getInitBoard()
+        return self._base_board.np_pieces
 
     def getBoardSize(self):
-        return super().getBoardSize()
+        return self._base_board.np_pieces.shape()
 
     def getActionSize(self):
-        return super().getActionSize()
+        return self._base_board.np_pieces.size()
 
     def getNextState(self, board, player, action):
-        return super().getNextState(board, player, action)
+        b = self._base_board.with_np_pieces(np_pieces=np.copy(board))
+        b.add_stone(action, player)
+        return b.np_pieces, -player
 
     def getValidMoves(self, board, player):
         return super().getValidMoves(board, player)
