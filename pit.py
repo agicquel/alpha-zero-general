@@ -47,7 +47,7 @@ args2 = dotdict({'numMCTSSims': 50, 'cpuct': 1.0})
 mcts2 = MCTS(g, n2, args2)
 n2p = lambda x: np.argmax(mcts2.getActionProb(x, temp=0))
 
-player2 = n2p  # Player 2 is neural network if it's cpu vs cpu.
+player2 = rp #n2p  # Player 2 is neural network if it's cpu vs cpu.
 
 arena = Arena.Arena(n1p, player2, g)
 

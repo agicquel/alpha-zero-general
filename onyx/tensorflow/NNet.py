@@ -10,7 +10,8 @@ from utils import *
 from pytorch_classification.utils import Bar, AverageMeter
 from NeuralNet import NeuralNet
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 from .OnyxNNet import OnyxNNet as onnet
 
 args = dotdict({
