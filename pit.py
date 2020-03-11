@@ -27,9 +27,11 @@ g = OnyxGame()
 human_vs_cpu = True
 
 rp = RandomPlayer(g).play
+rp2 = RandomPlayer(g).play
+hp = HumanOnyxPlayer(g).play
 """
 gp = GreedyOthelloPlayer(g).play
-hp = HumanOthelloPlayer(g).play
+
 """
 
 
@@ -49,6 +51,6 @@ n2p = lambda x: np.argmax(mcts2.getActionProb(x, temp=0))
 
 player2 = rp #n2p  # Player 2 is neural network if it's cpu vs cpu.
 
-arena = Arena.Arena(n1p, player2, g)
+arena = Arena.Arena(rp, rp2, g)
 
-print(arena.playGames(2, verbose=True))
+print(arena.playGames(2))

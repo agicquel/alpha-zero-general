@@ -24,6 +24,9 @@ class OnyxGame(Game):
         b = self._base_board.with_np_pieces(np_pieces=np.copy(board))
         width = b.size + int(b.size / 2)
         move = (action % width, int(action / width))
+        (x, y) = move
+        if not b.is_available(x, y):
+            return (board, -player)
         b.add_stone(move, player)
         return b.np_pieces, -player
 
@@ -77,8 +80,8 @@ class OnyxGame(Game):
                     newP2 = np.fliplr(newP2)
                     newP3 = np.fliplr(newP3)
 
-                newB = b.reconstruct_np_board(b1, b2, b3)
-                newP = b.reconstruct_np_board(p1, p2, p3)
+                newB = b.reconstruct_np_board(newB1, newB2, newB3)
+                newP = b.reconstruct_np_board(newP1, newP2, newP3)
                 l += [(newB, list(newP.ravel()) + [pi[-1]])]
 
         return l
@@ -88,4 +91,10 @@ class OnyxGame(Game):
 
     @staticmethod
     def display(board):
-        return str(board)
+        print(" -----------------------")
+        print(' '.join(map(str, range(len(board[0])))))
+        print(board)
+        print(" -----------------------")
+
+    def get_debug_board(self, board):
+        return self._base_board.with_np_pieces(np_pieces=board)

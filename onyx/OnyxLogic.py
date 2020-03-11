@@ -14,7 +14,7 @@ class Board:
     def add_stone(self, move, player):
         (x, y) = move
         #print("\n\nadd_stone = " + str(x) + ", " + str(y) + "\n\n")
-        if not self._is_available(x, y):
+        if not self.is_available(x, y):
             raise ValueError("Cannot play at coordinates : (%s,%s) on board :\n%s" % (x, y, self))
 
         captured = list()
@@ -44,7 +44,7 @@ class Board:
 
         self.np_pieces[y, x] = player
 
-    def _get_neighbors(self, x, y):
+    def get_neighbors(self, x, y):
         neighbors = list()
         z = self._get_z_dimension(x, y)
 
@@ -131,14 +131,17 @@ class Board:
         else:
             return False
 
-    def _is_available(self, x, y):
+    def is_available(self, x, y):
         #print("\n\n_is_available = " + str(x) + ", " + str(y) + "\n\n")
+        #if not self._is_inbound(x, y, self._get_z_dimension(x, y)):
+        #    return False
 
         if self.np_pieces[y, x] != 0:
             return False
         if self._get_z_dimension(x, y) != 0:
-            for nx, ny in self._get_neighbors(x, y):
+            for nx, ny in self.get_neighbors(x, y):
                 if self.np_pieces[ny, nx] != 0:
+
                     return False
         return True
 
@@ -146,7 +149,8 @@ class Board:
         available = list()
         for y in range(0, self.np_pieces.shape[0]):
             for x in range(0, self.np_pieces.shape[1]):
-                if self._is_available(x, y):
+                 #print("(" + str(x) + ", " + str(y) + ")")
+                if self.is_available(x, y):
                     available.append((x, y))
         return available
 
@@ -179,7 +183,7 @@ class Board:
 
         visited.append(move)
         next_moves = list()
-        for nx, ny in self._get_neighbors(x, y):
+        for nx, ny in self.get_neighbors(x, y):
             if self.np_pieces[ny, nx] == player and not (nx, ny) in visited:
                 next_moves.append((nx, ny))
 
