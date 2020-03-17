@@ -2,6 +2,7 @@ import math
 import numpy as np
 EPS = 1e-8
 
+
 class MCTS():
     """
     This class handles the MCTS tree.
@@ -32,8 +33,8 @@ class MCTS():
             self.search(canonicalBoard)
 
         s = self.game.stringRepresentation(canonicalBoard)
-        counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0.000000000000001 for a in range(self.game.getActionSize())]
-        print("\n\ncounts=" + str(counts) + "\n")
+        counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
+        #print("\n\ncounts=" + str(counts) + "\n")
 
         if temp==0:
             bestA = np.argmax(counts)

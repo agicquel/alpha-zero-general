@@ -3,7 +3,7 @@ import numpy as np
 
 class Board:
     def __init__(self, size=None, np_pieces=None):
-        self.size = size or 12
+        self.size = size or 6
         assert(self.size % 2 == 0)
         if np_pieces is None:
             self.np_pieces = np.zeros([self.size, (self.size + int(self.size / 2))])
@@ -11,6 +11,8 @@ class Board:
             self.np_pieces = np_pieces
             assert self.np_pieces.shape == (self.size, (self.size + int(self.size / 2)))
 
+    # player = -1 --> BLACK
+    # player = 1 --> WHITE
     def add_stone(self, move, player):
         (x, y) = move
         #print("\n\nadd_stone = " + str(x) + ", " + str(y) + "\n\n")
@@ -136,12 +138,19 @@ class Board:
         #if not self._is_inbound(x, y, self._get_z_dimension(x, y)):
         #    return False
 
+        if not (0 <= x < self.np_pieces.shape[1] and 0 <= y < self.np_pieces.shape[0]):
+            return False
+
         if self.np_pieces[y, x] != 0:
             return False
-        if self._get_z_dimension(x, y) != 0:
+
+        z = self._get_z_dimension(x, y)
+        if z != 0:
+            if not self._is_inbound(x, y, z):
+                return False
+
             for nx, ny in self.get_neighbors(x, y):
                 if self.np_pieces[ny, nx] != 0:
-
                     return False
         return True
 
@@ -163,22 +172,24 @@ class Board:
         visited = list()
         if player == 1:
             for y in range(0, self.size - 1):
-                visited.clear()
-                if self._is_winner_rec(player, visited, (0, y)):
-                    return True
+                if self.np_pieces[y, 0] == player:
+                    visited.clear()
+                    if self._is_winner_rec(player, visited, (0, y)):
+                        return True
         elif player == -1:
             for x in range(0, self.size - 1):
-                visited.clear()
-                if self._is_winner_rec(player, visited, (x, 0)):
-                    return True
+                if self.np_pieces[0, x] == player:
+                    visited.clear()
+                    if self._is_winner_rec(player, visited, (x, 0)):
+                        return True
         return False
 
     def _is_winner_rec(self, player, visited, move):
         (x, y) = move
 
-        if player == 1 and y == 11 and self.np_pieces[y, x] == player:
+        if player == 1 and y == (self.size - 1) and self.np_pieces[y, x] == player:
             return True
-        elif player == -1 and x == 11 and self.np_pieces[y, x] == player:
+        elif player == -1 and x == (self.size - 1) and self.np_pieces[y, x] == player:
             return True
 
         visited.append(move)
@@ -200,24 +211,21 @@ class Board:
 
     def split_np_board(self, board):
         b1 = board[0:self.size, 0:self.size]
-        b2 = board[0:int(self.size / 2), self.size:self.size + int(self.size / 2)]
-        b3 = board[int(self.size / 2):self.size, self.size:self.size + int(self.size / 2)]
+        b2 = board[0:int(self.size / 2), self.size:self.size + int(self.size / 2) - 1]
+        b3 = board[int(self.size / 2) + 1:self.size, self.size:self.size + int(self.size / 2)]
         return b1, b2, b3
 
     def reconstruct_np_board(self, b1, b2, b3):
-        board = np.zeros([self.size, (self.size + int(self.size / 2))])
+        board = np.zeros(self.np_pieces.shape)
         for y in range(0, board.shape[0]):
             for x in range(0, board.shape[1]):
                 z = self._get_z_dimension(x, y)
                 val = 0
                 if z == 0:
                     val = b1[y, x]
-                elif z == 1:
-                    x = x - self.size
-                    val = b2[y, x]
-                elif z == 2:
-                    x = x - self.size
-                    y = y - int(self.size / 2)
-                    val = b3[y, x]
+                elif z == 1 and self._is_inbound(x - self.size, y, z):
+                    val = b2[y, x - self.size]
+                elif z == 2 and self._is_inbound(x - self.size, y - int(self.size / 2), z):
+                    val = b3[y - int(self.size / 2), x - self.size]
                 board[y, x] = val
         return board
