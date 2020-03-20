@@ -4,7 +4,7 @@ import numpy as np
 class Board:
     def __init__(self, size=None, np_pieces=None):
         self.size = size or 6
-        assert(self.size % 2 == 0)
+        assert (self.size % 2 == 0)
         if np_pieces is None:
             self.np_pieces = np.zeros([self.size, (self.size + int(self.size / 2))])
         else:
@@ -15,29 +15,29 @@ class Board:
     # player = 1 --> WHITE
     def add_stone(self, move, player):
         (x, y) = move
-        #print("\n\nadd_stone = " + str(x) + ", " + str(y) + "\n\n")
+        # print("\n\nadd_stone = " + str(x) + ", " + str(y) + "\n\n")
         if not self.is_available(x, y):
             raise ValueError("Cannot play at coordinates : (%s,%s) on board :\n%s" % (x, y, self))
 
         captured = list()
-        if self._get_z_dimension(x, y) == 0:
-            top = self._is_inbound(x, y + 1, 0) and self.np_pieces[y + 1, x] == (player * -1)
-            bottom = self._is_inbound(x, y - 1, 0) and self.np_pieces[y - 1, x] == (player * -1)
-            left = self._is_inbound(x - 1, y, 0) and self.np_pieces[y, x - 1] == (player * -1)
-            right = self._is_inbound(x + 1, y, 0) and self.np_pieces[y, x + 1] == (player * -1)
+        if self.get_z_dimension(x, y) == 0:
+            top = self._is_inbound(x, y + 1, 0) and int(self.np_pieces[y + 1, x]) == int(player * -1)
+            bottom = self._is_inbound(x, y - 1, 0) and int(self.np_pieces[y - 1, x]) == int(player * -1)
+            left = self._is_inbound(x - 1, y, 0) and int(self.np_pieces[y, x - 1]) == int(player * -1)
+            right = self._is_inbound(x + 1, y, 0) and int(self.np_pieces[y, x + 1]) == int(player * -1)
 
             if (x % 2 == 0 and y % 2 == 0) or (x % 2 == 1 and y % 2 == 1):
-                if right and bottom and self.np_pieces[y - 1, x + 1] == player:
+                if right and bottom and int(self.np_pieces[y - 1, x + 1]) == int(player):
                     captured.append((x + 1, y))
                     captured.append((x, y - 1))
-                if left and top and self.np_pieces[y + 1, x - 1] == player:
+                if left and top and int(self.np_pieces[y + 1, x - 1]) == int(player):
                     captured.append((x - 1, y))
                     captured.append((x, y + 1))
             elif (x % 2 == 0 and y % 2 == 1) or (x % 2 == 1 and y % 2 == 0):
-                if left and bottom and self.np_pieces[y - 1, x - 1] == player:
+                if left and bottom and int(self.np_pieces[y - 1, x - 1]) == int(player):
                     captured.append((x - 1, y))
                     captured.append((x, y - 1))
-                if top and right and self.np_pieces[y + 1, x + 1] == player:
+                if top and right and int(self.np_pieces[y + 1, x + 1]) == int(player):
                     captured.append((x, y + 1))
                     captured.append((x + 1, y))
 
@@ -48,7 +48,7 @@ class Board:
 
     def get_neighbors(self, x, y):
         neighbors = list()
-        z = self._get_z_dimension(x, y)
+        z = self.get_z_dimension(x, y)
 
         if z == 0:
             if self._is_inbound(x, y - 1, z):
@@ -110,10 +110,10 @@ class Board:
             if self._is_inbound(2 * x + 1, 2 * y + 2, 0):
                 neighbors.append((2 * x + 1, 2 * y + 2))
 
-        #print("\n\nneighbors = " + str(neighbors) + "\n")
+        # print("\n\nneighbors = " + str(neighbors) + "\n")
         return neighbors
 
-    def _get_z_dimension(self, x, y):
+    def get_z_dimension(self, x, y):
         if x < self.size:
             return 0
         else:
@@ -123,7 +123,7 @@ class Board:
                 return 2
 
     def _is_inbound(self, x, y, z):
-        #print("\n\n_is_inbound = " + str(x) + ", " + str(y) + ", " + str(z) + "\n\n")
+        #print("\n_is_inbound = " + str(x) + ", " + str(y) + ", " + str(z) + "\n")
         if z == 0:
             return 0 <= x < self.size and 0 <= y < self.size
         elif z == 1:
@@ -134,23 +134,21 @@ class Board:
             return False
 
     def is_available(self, x, y):
-        #print("\n\n_is_available = " + str(x) + ", " + str(y) + "\n\n")
-        #if not self._is_inbound(x, y, self._get_z_dimension(x, y)):
-        #    return False
-
         if not (0 <= x < self.np_pieces.shape[1] and 0 <= y < self.np_pieces.shape[0]):
             return False
 
-        if self.np_pieces[y, x] != 0:
+        if int(self.np_pieces[y, x]) != 0:
             return False
 
-        z = self._get_z_dimension(x, y)
+        z = self.get_z_dimension(x, y)
         if z != 0:
-            if not self._is_inbound(x, y, z):
+            if z == 1 and not self._is_inbound(x - self.size, y, z):
+                return False
+            elif z == 2 and not self._is_inbound(x - self.size, y - int(self.size / 2), z):
                 return False
 
             for nx, ny in self.get_neighbors(x, y):
-                if self.np_pieces[ny, nx] != 0:
+                if int(self.np_pieces[ny, nx]) != 0:
                     return False
         return True
 
@@ -158,7 +156,7 @@ class Board:
         available = list()
         for y in range(0, self.np_pieces.shape[0]):
             for x in range(0, self.np_pieces.shape[1]):
-                 #print("(" + str(x) + ", " + str(y) + ")")
+                # print("(" + str(x) + ", " + str(y) + ")")
                 if self.is_available(x, y):
                     available.append((x, y))
         return available
@@ -171,14 +169,14 @@ class Board:
     def is_winner(self, player):
         visited = list()
         if player == 1:
-            for y in range(0, self.size - 1):
-                if self.np_pieces[y, 0] == player:
+            for y in range(self.size - 1):
+                if int(self.np_pieces[y, 0]) == int(player):
                     visited.clear()
                     if self._is_winner_rec(player, visited, (0, y)):
                         return True
         elif player == -1:
-            for x in range(0, self.size - 1):
-                if self.np_pieces[0, x] == player:
+            for x in range(self.size - 1):
+                if int(self.np_pieces[0, x]) == int(player):
                     visited.clear()
                     if self._is_winner_rec(player, visited, (x, 0)):
                         return True
@@ -187,15 +185,15 @@ class Board:
     def _is_winner_rec(self, player, visited, move):
         (x, y) = move
 
-        if player == 1 and y == (self.size - 1) and self.np_pieces[y, x] == player:
+        if player == -1 and y == (self.size - 1) and int(self.np_pieces[y, x]) == int(player):
             return True
-        elif player == -1 and x == (self.size - 1) and self.np_pieces[y, x] == player:
+        elif player == 1 and x == (self.size - 1) and int(self.np_pieces[y, x]) == int(player):
             return True
 
         visited.append(move)
         next_moves = list()
         for nx, ny in self.get_neighbors(x, y):
-            if self.np_pieces[ny, nx] == player and not (nx, ny) in visited:
+            if int(self.np_pieces[ny, nx]) == int(player) and not (nx, ny) in visited:
                 next_moves.append((nx, ny))
 
         if len(next_moves) == 0:
@@ -212,14 +210,14 @@ class Board:
     def split_np_board(self, board):
         b1 = board[0:self.size, 0:self.size]
         b2 = board[0:int(self.size / 2), self.size:self.size + int(self.size / 2) - 1]
-        b3 = board[int(self.size / 2) + 1:self.size, self.size:self.size + int(self.size / 2)]
+        b3 = board[int(self.size / 2):self.size - 1, self.size:self.size + int(self.size / 2)]
         return b1, b2, b3
 
     def reconstruct_np_board(self, b1, b2, b3):
         board = np.zeros(self.np_pieces.shape)
         for y in range(0, board.shape[0]):
             for x in range(0, board.shape[1]):
-                z = self._get_z_dimension(x, y)
+                z = self.get_z_dimension(x, y)
                 val = 0
                 if z == 0:
                     val = b1[y, x]
@@ -229,3 +227,52 @@ class Board:
                     val = b3[y - int(self.size / 2), x - self.size]
                 board[y, x] = val
         return board
+
+    def build_pi_board(self, pi):
+        size = self.size
+        width = size + int(size / 2)
+        pi_board = np.zeros([size, width])
+
+        pos = 0
+        for p in pi:
+            (x, y) = (pos % width, int(pos / width))
+            pi_board[y, x] = p
+            pos = pos + 1
+
+        return pi_board
+
+    def string_test_js(self):
+        black = "black are : ["
+        white = "white are : ["
+
+        for y in range(0, self.np_pieces.shape[0]):
+            for x in range(0, self.np_pieces.shape[1]):
+                value = int(self.np_pieces[y, x])
+                if value == 0:
+                    continue
+                z = self.get_z_dimension(x, y)
+                # print("x, y, z = " + str((x, y, z)))
+                coord = ""
+                if z == 0:
+                    coord = chr(ord('A') + x) + "," + str(y + 1)
+                elif z == 1:
+                    x = x - self.size
+                    coord = chr(ord('A') + 2 * x + 1) + "-" + chr(ord('A') + 2 * x + 2)
+                    coord += "," + str(2 * y + 1) + "-" + str(2 * y + 2)
+                elif z == 2:
+                    x = x - self.size
+                    y = y - int(self.size / 2)
+                    coord = chr(ord('A') + 2 * x) + "-" + chr(ord('A') + 2 * x + 1)
+                    coord += "," + str(2 * y + 2) + "-" + str(2 * y + 3)
+
+                # print("coord = " + coord)
+
+                if value == -1:
+                    black = black + "'" + coord + "', "
+                elif value == 1:
+                    white = white + "'" + coord + "', "
+
+        black = black + "]\n"
+        white = white + "]\n"
+
+        return black + white
