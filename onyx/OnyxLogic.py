@@ -15,7 +15,6 @@ class Board:
     # player = 1 --> WHITE
     def add_stone(self, move, player):
         (x, y) = move
-        # print("\n\nadd_stone = " + str(x) + ", " + str(y) + "\n\n")
         if not self.is_available(x, y):
             raise ValueError("Cannot play at coordinates : (%s,%s) on board :\n%s" % (x, y, self))
 
@@ -110,7 +109,6 @@ class Board:
             if self._is_inbound(2 * x + 1, 2 * y + 2, 0):
                 neighbors.append((2 * x + 1, 2 * y + 2))
 
-        # print("\n\nneighbors = " + str(neighbors) + "\n")
         return neighbors
 
     def get_z_dimension(self, x, y):
@@ -123,7 +121,6 @@ class Board:
                 return 2
 
     def _is_inbound(self, x, y, z):
-        #print("\n_is_inbound = " + str(x) + ", " + str(y) + ", " + str(z) + "\n")
         if z == 0:
             return 0 <= x < self.size and 0 <= y < self.size
         elif z == 1:
@@ -156,7 +153,6 @@ class Board:
         available = list()
         for y in range(0, self.np_pieces.shape[0]):
             for x in range(0, self.np_pieces.shape[1]):
-                # print("(" + str(x) + ", " + str(y) + ")")
                 if self.is_available(x, y):
                     available.append((x, y))
         return available
@@ -241,6 +237,21 @@ class Board:
 
         return pi_board
 
+    def rotate_board(self, board, n):
+        if n == 0:
+            return board
+        (b1, b2, b3) = self.split_np_board(np.copy(board))
+        new_b1 = np.rot90(b1, 1 if n > 0 else -1)
+        new_b2 = np.rot90(b2, 1 if n > 0 else -1)
+        new_b3 = np.rot90(b3, 1 if n > 0 else -1)
+        new_b1 = np.fliplr(new_b1)
+        new_b2 = np.fliplr(new_b2)
+        new_b3 = np.fliplr(new_b3)
+        new_b1 = new_b1 * -1
+        new_b2 = new_b2 * -1
+        new_b3 = new_b3 * -1
+        return self.rotate_board(self.reconstruct_np_board(new_b1, new_b3, new_b2), n - (1 if n > 0 else -1))
+
     def string_test_js(self):
         black = "black are : ["
         white = "white are : ["
@@ -251,7 +262,6 @@ class Board:
                 if value == 0:
                     continue
                 z = self.get_z_dimension(x, y)
-                # print("x, y, z = " + str((x, y, z)))
                 coord = ""
                 if z == 0:
                     coord = chr(ord('A') + x) + "," + str(y + 1)
@@ -264,8 +274,6 @@ class Board:
                     y = y - int(self.size / 2)
                     coord = chr(ord('A') + 2 * x) + "-" + chr(ord('A') + 2 * x + 1)
                     coord += "," + str(2 * y + 2) + "-" + str(2 * y + 3)
-
-                # print("coord = " + coord)
 
                 if value == -1:
                     black = black + "'" + coord + "', "
