@@ -224,19 +224,6 @@ class Board:
                 board[y, x] = val
         return board
 
-    def build_pi_board(self, pi):
-        size = self.size
-        width = size + int(size / 2)
-        pi_board = np.zeros([size, width])
-
-        pos = 0
-        for p in pi:
-            (x, y) = (pos % width, int(pos / width))
-            pi_board[y, x] = p
-            pos = pos + 1
-
-        return pi_board
-
     def rotate_board(self, board, n):
         if n == 0:
             return board
@@ -247,9 +234,6 @@ class Board:
         new_b1 = np.fliplr(new_b1)
         new_b2 = np.fliplr(new_b2)
         new_b3 = np.fliplr(new_b3)
-        new_b1 = new_b1 * -1
-        new_b2 = new_b2 * -1
-        new_b3 = new_b3 * -1
         return self.rotate_board(self.reconstruct_np_board(new_b1, new_b3, new_b2), n - (1 if n > 0 else -1))
 
     def string_test_js(self):

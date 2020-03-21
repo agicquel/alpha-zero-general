@@ -29,7 +29,7 @@ class OnyxGame(Game):
             can = self.getCanonicalForm(board, -1)
             board2 = self._base_board.with_np_pieces(can)
             board2.add_stone(move, 1)
-            return board2.rotate_board(board2.np_pieces, 1), -player
+            return board2.rotate_board(board2.np_pieces * -1, 1), -player
         else:
             b.add_stone(move, 1)
             return b.np_pieces, -player
@@ -64,13 +64,16 @@ class OnyxGame(Game):
         b = self._base_board.with_np_pieces(np_pieces=np.copy(board))
         if player == 1:
             return b.np_pieces
-        return b.rotate_board(b.np_pieces, -1)
+        return b.rotate_board(b.np_pieces * -1, -1)
 
     def getSymmetries(self, board, pi):
         assert (len(pi) == self.getActionSize())
         symmetries = []
-        b = self._base_board.with_np_pieces(np_pieces=np.copy(board))
+        b = self._base_board.with_np_pieces(np_pieces=board)
         pi_board = np.reshape(pi, (b.size, (b.size + int(b.size / 2))))
+
+        #symmetries += [(board, list(pi_board.ravel()))]
+        #symmetries += [(b.rotate_board(board, 2), list(b.rotate_board(pi_board, 2).ravel()))]
 
         (b1, b2, b3) = b.split_np_board(b.np_pieces)
         (p1, p2, p3) = b.split_np_board(pi_board)
@@ -80,6 +83,7 @@ class OnyxGame(Game):
                 new_b1 = b1
                 new_b2 = b2
                 new_b3 = b3
+
                 new_p1 = p1
                 new_p2 = p2
                 new_p3 = p3
@@ -88,13 +92,16 @@ class OnyxGame(Game):
                     new_b1 = np.flipud(new_b1)
                     new_b2 = np.flipud(new_b2)
                     new_b3 = np.flipud(new_b3)
+
                     new_p1 = np.flipud(new_p1)
                     new_p2 = np.flipud(new_p2)
                     new_p3 = np.flipud(new_p3)
+
                 if j:
                     new_b1 = np.fliplr(new_b1)
                     new_b2 = np.fliplr(new_b2)
                     new_b3 = np.fliplr(new_b3)
+
                     new_p1 = np.fliplr(new_p1)
                     new_p2 = np.fliplr(new_p2)
                     new_p3 = np.fliplr(new_p3)
