@@ -54,4 +54,4 @@ player2 = rp #n2p  # Player 2 is neural network if it's cpu vs cpu.
 
 arena = Arena.Arena(rp, n2p, g, g.display)
 
-print(arena.playGames(100, verbose=False))
+print(arena.playGames(1000, verbose=False))
