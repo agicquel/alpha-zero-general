@@ -25,18 +25,28 @@ class Board:
             left = self._is_inbound(x - 1, y, 0) and int(self.np_pieces[y, x - 1]) == int(player * -1)
             right = self._is_inbound(x + 1, y, 0) and int(self.np_pieces[y, x + 1]) == int(player * -1)
 
+            neighbors = self.get_neighbors(x, y)
+            coord_z1 = next(filter(lambda c: self.get_z_dimension(c[0], c[1]) == 1, neighbors), None)
+            coord_z2 = next(filter(lambda c: self.get_z_dimension(c[0], c[1]) == 2, neighbors), None)
+            centre_z1_av = coord_z1 is None or int(self.np_pieces[coord_z1[1]][coord_z1[0]]) == 0
+            centre_z2_av = coord_z2 is None or int(self.np_pieces[coord_z2[1]][coord_z2[0]]) == 0
+
             if (x % 2 == 0 and y % 2 == 0) or (x % 2 == 1 and y % 2 == 1):
-                if right and bottom and int(self.np_pieces[y - 1, x + 1]) == int(player):
+                c1 = centre_z2_av if (x % 2 == 0 and y % 2 == 0) else centre_z1_av
+                c2 = centre_z2_av if (x % 2 == 0 and y % 2 == 0) else centre_z2_av
+                if c1 and right and bottom and int(self.np_pieces[y - 1, x + 1]) == int(player):
                     captured.append((x + 1, y))
                     captured.append((x, y - 1))
-                if left and top and int(self.np_pieces[y + 1, x - 1]) == int(player):
+                if c2 and left and top and int(self.np_pieces[y + 1, x - 1]) == int(player):
                     captured.append((x - 1, y))
                     captured.append((x, y + 1))
             elif (x % 2 == 0 and y % 2 == 1) or (x % 2 == 1 and y % 2 == 0):
-                if left and bottom and int(self.np_pieces[y - 1, x - 1]) == int(player):
+                c1 = centre_z2_av if (x % 2 == 0 and y % 2 == 1) else centre_z1_av
+                c2 = centre_z2_av if (x % 2 == 0 and y % 2 == 1) else centre_z2_av
+                if c2 and left and bottom and int(self.np_pieces[y - 1, x - 1]) == int(player):
                     captured.append((x - 1, y))
                     captured.append((x, y - 1))
-                if top and right and int(self.np_pieces[y + 1, x + 1]) == int(player):
+                if c1 and top and right and int(self.np_pieces[y + 1, x + 1]) == int(player):
                     captured.append((x, y + 1))
                     captured.append((x + 1, y))
 

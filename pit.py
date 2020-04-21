@@ -38,7 +38,7 @@ gp = GreedyOthelloPlayer(g).play
 
 # nnet players
 n1 = NNet(g)
-n1.load_checkpoint('./pretrained_models/onyx/pytorch/', '6x6_best.pth.tar')
+n1.load_checkpoint('./pretrained_models/onyx/pytorch/', '6x6_94.pth.tar')
 args1 = dotdict({'numMCTSSims': 50, 'cpuct':1.0})
 mcts1 = MCTS(g, n1, args1)
 n1p = lambda x: np.argmax(mcts1.getActionProb(x, temp=0))
@@ -52,6 +52,6 @@ n2p = lambda x: np.argmax(mcts2.getActionProb(x, temp=0))
 
 player2 = rp #n2p  # Player 2 is neural network if it's cpu vs cpu.
 
-arena = Arena.Arena(rp, n2p, g, g.display)
+arena = Arena.Arena(rp, n1p, g, g.display)
 
 print(arena.playGames(1000, verbose=False))
