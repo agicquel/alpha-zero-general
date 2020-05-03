@@ -41,7 +41,7 @@ class GameClient:
         self.board = self.game.getInitBoard()
 
         n = NNet(self.game)
-        n.load_checkpoint('./pretrained_models/onyx/pytorch/', '6x6_107.pth.tar')
+        n.load_checkpoint('./pretrained_models/onyx/pytorch/', '6x6_120.pth.tar')
         args = dotdict({'numMCTSSims': 50, 'cpuct': 1.0})
         mcts = MCTS(self.game, n, args)
         self.ai_player = lambda x: np.argmax(mcts.getActionProb(x, temp=0))
